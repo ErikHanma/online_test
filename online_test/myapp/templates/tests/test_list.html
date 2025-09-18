@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список тестов</title>
+</head>
+<body>
+    <h1>Доступные тесты</h1>
+    <ul>
+        {% for test in tests %}
+            <li>{{ test.title }} ({{ test.get_specialization_display }}) - {{ test.time_limit_minutes }} мин.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

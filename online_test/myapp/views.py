@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from .models import Test
 
-# Create your views here.
+def test_list(request):
+    tests = Test.objects.all()
+    return render(request, 'tests/test_list.html', {'tests': tests})
