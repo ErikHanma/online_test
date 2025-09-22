@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ test.title }}</title>
+</head>
+<body>
+    <h1>{{ test.title }}</h1>
+    <p>{{ test.description }}</p>
+    <p>Время на прохождение: {{ test.time_limit_minutes }} минут</p>
+
+    <hr>
+    
+    {% for question in questions %}
+        <h3>{{ forloop.counter }}. {{ question.text }}</h3>
+        <ul>
+            {% for answer in question.answers.all %}
+                <li>
+                    <input type="radio" name="question-{{ question.pk }}" id="answer-{{ answer.pk }}">
+                    <label for="answer-{{ answer.pk }}">{{ answer.text }}</label>
+                </li>
+            {% endfor %}
+        </ul>
+        <br>
+    {% endfor %}
+
+</body>
+</html>

@@ -13,3 +13,18 @@ class Test(models.Model):
 
     def __str__(self):
         return self.title
+
+class Question(models.Model):
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions', verbose_name="Тест")
+    text = models.TextField(verbose_name="Текст вопроса")
+    
+    def __str__(self):
+        return f"Вопрос для теста '{self.test.title}': {self.text[:50]}..."
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name="Вопрос")
+    text = models.CharField(max_length=200, verbose_name="Текст ответа")
+    is_correct = models.BooleanField(default=False, verbose_name="Правильный ответ")
+    
+    def __str__(self):
+        return self.text

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список тестов</title>
+</head>
+<body>
+    <h1>Доступные тесты</h1>
+    <ul>
+        {% for test in tests %}
+            <li>
+                <a href="{% url 'test_detail' pk=test.pk %}">{{ test.title }}</a>
+                <p>Специализация: {{ test.specialization }}</p>
+                <p>Время: {{ test.time_limit_minutes }} минут</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
