@@ -10,18 +10,22 @@
 
     <hr>
     
-    {% for question in questions %}
-        <h3>{{ forloop.counter }}. {{ question.text }}</h3>
-        <ul>
-            {% for answer in question.answers.all %}
-                <li>
-                    <input type="radio" name="question-{{ question.pk }}" id="answer-{{ answer.pk }}">
-                    <label for="answer-{{ answer.pk }}">{{ answer.text }}</label>
-                </li>
-            {% endfor %}
-        </ul>
-        <br>
-    {% endfor %}
+    <form method="post" action="{% url 'submit_test' test.pk %}">
+        {% csrf_token %}
+        {% for question in questions %}
+            <h3>{{ forloop.counter }}. {{ question.text }}</h3>
+            <ul>
+                {% for answer in question.answers.all %}
+                    <li>
+                        <input type="radio" name="question_{{ question.pk }}" value="{{ answer.pk }}" id="answer-{{ answer.pk }}">
+                        <label for="answer-{{ answer.pk }}">{{ answer.text }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+            <br>
+        {% endfor %}
+        <button type="submit">Завершить тест и получить результат</button>
+    </form>
 
 </body>
 </html>

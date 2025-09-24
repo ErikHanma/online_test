@@ -28,3 +28,18 @@ class Answer(models.Model):
     
     def __str__(self):
         return self.text
+
+class TestResult(models.Model):
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, verbose_name="Тест")
+    score = models.IntegerField(verbose_name="Количество правильных ответов")
+    total_questions = models.IntegerField(verbose_name="Всего вопросов")
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время прохождения")
+
+    def __str__(self):
+        return f"Результат теста '{self.test.title}': {self.score}/{self.total_questions}"
+
+    @property
+    def percentage_score(self):
+        if self.total_questions > 0:
+            return (self.score / self.total_questions) * 100
+        return 0

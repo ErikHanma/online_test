@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результат теста</title>
+</head>
+<body>
+    <h1>Результат теста "{{ test.title }}"</h1>
+    <p>Ваш результат: <strong>{{ result.score }}</strong> из <strong>{{ result.total_questions }}</strong>.</p>
+    <p>Процент правильных ответов: <strong>{{ result.percentage_score|floatformat:2 }}%</strong></p>
+    
+    <a href="{% url 'test_list' %}">Вернуться к списку тестов</a>
+</body>
+</html>
