@@ -1,0 +1,88 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'myapp/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+        </div>
+        <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
+        <p class="profile-email">{{ user.email }}</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <span class="stat-value">{{ stats.total_tests }}</span>
+            <span class="stat-label">Пройдено тестов</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <span class="stat-value">{{ stats.avg_score }}%</span>
+            <span class="stat-label">Средний балл</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <span class="stat-value">{{ stats.best_score }}%</span>
+            <span class="stat-label">Лучший результат</span>
+        </div>
+    </div>
+
+    <h2 class="section-title">
+        📝 История тестирований
+    </h2>
+
+    {% if results %}
+        <div class="results-list">
+            {% for result in results %}
+            <div class="result-item">
+                <div class="result-icon">
+                    {% if result.percentage_score >= 80 %}🎉
+                    {% elif result.percentage_score >= 60 %}👍
+                    {% elif result.percentage_score >= 40 %}📚
+                    {% else %}💪
+                    {% endif %}
+                </div>
+                
+                <div class="result-info">
+                    <h3>{{ result.test.title }}</h3>
+                    <div class="result-meta">
+                        <span>{{ result.timestamp|date:"d.m.Y H:i" }}</span>
+                        <span>•</span>
+                        <span>{{ result.score }} из {{ result.total_questions }}</span>
+                    </div>
+                </div>
+                
+                <div class="result-score">
+                    <div class="score-badge 
+                        {% if result.percentage_score >= 80 %}score-excellent
+                        {% elif result.percentage_score >= 60 %}score-good
+                        {% elif result.percentage_score >= 40 %}score-average
+                        {% else %}score-poor
+                        {% endif %}">
+                        {{ result.percentage_score|floatformat:0 }}%
+                    </div>
+                    <div class="result-date">
+                        {{ result.time_spent_minutes }} мин
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>Вы еще не проходили тесты</h3>
+            <p>Начните тестирование, чтобы увидеть свои результаты здесь</p>
+            <a href="{% url 'test_list' %}" class="btn btn-primary">
+                Перейти к тестам
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

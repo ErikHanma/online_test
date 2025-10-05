@@ -1,13 +1,140 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Результат теста</title>
-</head>
-<body>
-    <h1>Результат теста "{{ test.title }}"</h1>
-    <p>Ваш результат: <strong>{{ result.score }}</strong> из <strong>{{ result.total_questions }}</strong>.</p>
-    <p>Процент правильных ответов: <strong>{{ result.percentage_score|floatformat:2 }}%</strong></p>
-    
-    <a href="{% url 'test_list' %}">Вернуться к списку тестов</a>
-</body>
-</html>
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'myapp/css/test_result.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-card">
+        {% if result.percentage_score >= 80 %}
+            <div class="result-icon">🎉</div>
+            <h1 class="result-title">Отличный результат!</h1>
+        {% elif result.percentage_score >= 60 %}
+            <div class="result-icon">👍</div>
+            <h1 class="result-title">Хороший результат!</h1>
+        {% elif result.percentage_score >= 40 %}
+            <div class="result-icon">📚</div>
+            <h1 class="result-title">Неплохо!</h1>
+        {% else %}
+            <div class="result-icon">💪</div>
+            <h1 class="result-title">Есть над чем работать</h1>
+        {% endif %}
+        
+        <p class="result-subtitle">{{ test.title }}</p>
+
+        <div class="score-display">
+            <div class="score-circle" data-percentage="{{ result.percentage_score }}">
+                <svg width="200" height="200">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="score-circle-bg" cx="100" cy="100" r="90"></circle>
+                    <circle class="score-circle-fill" cx="100" cy="100" r="90"></circle>
+                </svg>
+                <div class="score-text">
+                    {{ result.percentage_score|floatformat:0 }}
+                    <span class="score-percentage">%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-value">{{ result.score }}</span>
+                <span class="stat-label">Правильных ответов</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">{{ result.total_questions }}</span>
+                <span class="stat-label">Всего вопросов</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">{{ result.timestamp|date:"H:i" }}</span>
+                <span class="stat-label">Время завершения</span>
+            </div>
+        </div>
+
+        {% if result.percentage_score >= 80 %}
+        <div class="result-message excellent">
+            🌟 Превосходно! Вы продемонстрировали отличное знание материала. Продолжайте в том же духе!
+        </div>
+        {% elif result.percentage_score >= 60 %}
+        <div class="result-message good">
+            ✨ Хороший результат! У вас солидная база знаний. Немного практики - и вы станете экспертом!
+        </div>
+        {% elif result.percentage_score >= 40 %}
+        <div class="result-message average">
+            📖 Неплохое начало! Рекомендуем повторить материал и попробовать еще раз.
+        </div>
+        {% else %}
+        <div class="result-message poor">
+            💡 Не расстраивайтесь! Это отличная возможность для обучения. Изучите материал и попробуйте снова!
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="{% url 'test_list' %}" class="btn btn-primary">
+                🏠 Вернуться к тестам
+            </a>
+            <a href="{% url 'test_detail' test.pk %}" class="btn btn-secondary">
+                🔄 Пройти еще раз
+            </a>
+        </div>
+
+        {% if code_submissions %}
+        <div class="code-details">
+            <h2>💻 Ваши решения задач по программированию</h2>
+            
+            {% for submission in code_submissions %}
+            <div class="code-submission {% if submission.is_correct %}correct{% else %}incorrect{% endif %}">
+                <div class="code-submission-header">
+                    <h3>{{ submission.question.text|truncatewords:10 }}</h3>
+                    <span class="code-status {% if submission.is_correct %}correct{% else %}incorrect{% endif %}">
+                        {% if submission.is_correct %}✅ Верно{% else %}❌ Неверно{% endif %}
+                    </span>
+                </div>
+                
+                <span class="output-label">Ваш код:</span>
+                <div class="code-block">
+                    <pre>{{ submission.code }}</pre>
+                </div>
+                
+                <span class="output-label">Результат выполнения:</span>
+                <div class="code-block">
+                    <pre>{{ submission.output|default:"Нет вывода" }}</pre>
+                </div>
+                
+                {% if submission.question.expected_output %}
+                <span class="output-label">Ожидаемый результат:</span>
+                <div class="code-block">
+                    <pre>{{ submission.question.expected_output }}</pre>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Анимация появления круга
+        document.addEventListener('DOMContentLoaded', function() {
+            const scoreCircle = document.querySelector('.score-circle');
+            const percentage = parseFloat(scoreCircle.getAttribute('data-percentage'));
+            const circle = document.querySelector('.score-circle-fill');
+            const circumference = 565;
+            const offset = circumference - (circumference * percentage / 100);
+            
+            setTimeout(function() {
+                circle.style.strokeDashoffset = offset;
+            }, 200);
+        });
+    })();
+</script>
+{% endblock %}

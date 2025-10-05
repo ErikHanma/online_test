@@ -1,18 +1,112 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Список тестов</title>
-</head>
-<body>
-    <h1>Доступные тесты</h1>
-    <ul>
-        {% for test in tests %}
-            <li>
-                <a href="{% url 'test_detail' pk=test.pk %}">{{ test.title }}</a>
-                <p>Специализация: {{ test.specialization }}</p>
-                <p>Время: {{ test.time_limit_minutes }} минут</p>
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'myapp/css/test_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>🎯 Проверьте свои навыки</h1>
+    <p>Выберите тест и продемонстрируйте свой профессионализм</p>
+</div>
+
+<div class="container">
+    {% if recommended_tests %}
+        <h2 class="section-title">⭐ Рекомендованные для вас</h2>
+        <div class="tests-grid">
+            {% for test in recommended_tests %}
+            <div class="test-card">
+                <span class="recommended-badge">Для вас</span>
+                <span class="test-badge badge-{{ test.specialization }}">
+                    {% if test.specialization == 'backend' %}🔧 Backend
+                    {% elif test.specialization == 'frontend' %}🎨 Frontend
+                    {% elif test.specialization == 'qa' %}✅ QA
+                    {% elif test.specialization == 'fullstack' %}🌟 Fullstack
+                    {% elif test.specialization == 'devops' %}⚙️ DevOps
+                    {% endif %}
+                </span>
+                <h2>{{ test.title }}</h2>
+                <p>{{ test.description|truncatewords:20 }}</p>
+                
+                <div class="test-meta">
+                    <span>⏱️ {{ test.time_limit_minutes }} мин</span>
+                    <span>📝 {{ test.questions.count }} вопросов</span>
+                </div>
+                
+                <a href="{% url 'test_detail' test.pk %}" class="btn btn-primary" style="width: 100%; text-align: center;">
+                    Начать тест →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if other_tests %}
+        <h2 class="section-title">📚 Другие тесты</h2>
+        <div class="tests-grid">
+            {% for test in other_tests %}
+            <div class="test-card">
+                <span class="test-badge badge-{{ test.specialization }}">
+                    {% if test.specialization == 'backend' %}🔧 Backend
+                    {% elif test.specialization == 'frontend' %}🎨 Frontend
+                    {% elif test.specialization == 'qa' %}✅ QA
+                    {% elif test.specialization == 'fullstack' %}🌟 Fullstack
+                    {% elif test.specialization == 'devops' %}⚙️ DevOps
+                    {% endif %}
+                </span>
+                <h2>{{ test.title }}</h2>
+                <p>{{ test.description|truncatewords:20 }}</p>
+                
+                <div class="test-meta">
+                    <span>⏱️ {{ test.time_limit_minutes }} мин</span>
+                    <span>📝 {{ test.questions.count }} вопросов</span>
+                </div>
+                
+                <a href="{% url 'test_detail' test.pk %}" class="btn btn-primary" style="width: 100%; text-align: center;">
+                    Начать тест →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if tests and not recommended_tests and not other_tests %}
+        <div class="tests-grid">
+            {% for test in tests %}
+            <div class="test-card">
+                <span class="test-badge badge-{{ test.specialization }}">
+                    {% if test.specialization == 'backend' %}🔧 Backend
+                    {% elif test.specialization == 'frontend' %}🎨 Frontend
+                    {% elif test.specialization == 'qa' %}✅ QA
+                    {% elif test.specialization == 'fullstack' %}🌟 Fullstack
+                    {% elif test.specialization == 'devops' %}⚙️ DevOps
+                    {% endif %}
+                </span>
+                <h2>{{ test.title }}</h2>
+                <p>{{ test.description|truncatewords:20 }}</p>
+                
+                <div class="test-meta">
+                    <span>⏱️ {{ test.time_limit_minutes }} мин</span>
+                    <span>📝 {{ test.questions.count }} вопросов</span>
+                </div>
+                
+                <a href="{% url 'test_detail' test.pk %}" class="btn btn-primary" style="width: 100%; text-align: center;">
+                    Начать тест →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if not tests and not recommended_tests and not other_tests %}
+        <div class="empty-state">
+            <h2>😔 Тесты пока не добавлены</h2>
+            <p>Обратитесь к администратору для добавления тестов</p>
+            {% if user.is_staff %}
+                <a href="/admin/" class="btn btn-primary" style="margin-top: 1rem;">Перейти в админ-панель</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

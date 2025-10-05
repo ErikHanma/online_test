@@ -1,31 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ test.title }}</title>
-</head>
-<body>
-    <h1>{{ test.title }}</h1>
-    <p>{{ test.description }}</p>
-    <p>Время на прохождение: {{ test.time_limit_minutes }} минут</p>
+{% extends 'myapp/base.html' %}
+{% load static %}
 
-    <hr>
-    
-    <form method="post" action="{% url 'submit_test' test.pk %}">
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="{% static 'myapp/css/test_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="timer" id="timer" data-time-limit="{{ test.time_limit_minutes }}">
+        <div>⏱️ Осталось времени</div>
+        <div class="timer-value" id="timer-value"></div>
+    </div>
+
+    <div class="test-header">
+        <h1>{{ test.title }}</h1>
+        <p>{{ test.description }}</p>
+    </div>
+
+    <form method="post" action="{% url 'submit_test' test.pk %}" id="test-form">
         {% csrf_token %}
+        
         {% for question in questions %}
-            <h3>{{ forloop.counter }}. {{ question.text }}</h3>
-            <ul>
-                {% for answer in question.answers.all %}
-                    <li>
-                        <input type="radio" name="question_{{ question.pk }}" value="{{ answer.pk }}" id="answer-{{ answer.pk }}">
-                        <label for="answer-{{ answer.pk }}">{{ answer.text }}</label>
+        <div class="question-card">
+            <div class="question-text">
+                <span class="question-number">{{ forloop.counter }}</span>
+                <span>{{ question.text }}</span>
+                {% if question.question_type == 'code' %}
+                <span class="question-type-badge badge-code">💻 ЗАДАЧА ПО ПРОГРАММИРОВАНИЮ</span>
+                {% endif %}
+            </div>
+            
+            {% if question.question_type == 'single' %}
+                <ul class="answers-list">
+                    {% for answer in question.answers.all %}
+                    <li class="answer-item">
+                        <input 
+                            type="radio" 
+                            name="question_{{ question.pk }}" 
+                            value="{{ answer.pk }}" 
+                            id="answer-{{ answer.pk }}"
+                            required
+                        >
+                        <label for="answer-{{ answer.pk }}" class="answer-label">
+                            {{ answer.text }}
+                        </label>
                     </li>
-                {% endfor %}
-            </ul>
-            <br>
+                    {% endfor %}
+                </ul>
+            {% elif question.question_type == 'code' %}
+                <div class="code-editor-wrapper">
+                    <textarea 
+                        id="code-{{ question.pk }}" 
+                        name="code_{{ question.pk }}"
+                        class="code-editor"
+                        required
+                    >{{ question.code_template|default:"# Напишите ваш код здесь\n" }}</textarea>
+                </div>
+                {% if question.expected_output %}
+                <div class="expected-output">
+                    <strong>Ожидаемый результат:</strong>
+                    <pre style="margin-top: 0.5rem; font-family: monospace;">{{ question.expected_output }}</pre>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
         {% endfor %}
-        <button type="submit">Завершить тест и получить результат</button>
-    </form>
 
-</body>
-</html>
+        <div class="submit-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" data-total="{{ questions.count }}">Отвечено на 0 из {{ questions.count }} вопросов</p>
+            <button type="submit" class="btn btn-success">
+                ✅ Завершить тест
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'myapp/js/test_detail.js' %}"></script>
+{% endblock %}
