@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-# Убедитесь, что myapp.models доступна и включает 
-# поля code_template и expected_output в модели Question
+
 from myapp.models import Test, Question, Answer 
 
 
@@ -339,4 +338,5 @@ class Command(BaseCommand):
             self.stdout.write(f'  ✓ {test.title}')
             self.stdout.write(f'    - Вопросов: {test.questions.count()}')
             self.stdout.write(f'    - Время: {test.time_limit_minutes} минут')
+
             self.stdout.write(f'    - Специализация: {test.get_specialization_display()}')
